@@ -6,14 +6,23 @@ class NSString
 
     @@sugarcube_docs.stringByAppendingPathComponent(self)
   end
+  
+  def cache
+    @@sugarcube_caches ||= NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, true)[0]
+    return self if self.hasPrefix(@@sugarcube_caches)
+
+    @@sugarcube_caches.stringByAppendingPathComponent(self)
+  end
 
   def exists?
-    NSFileManager.defaultManager.fileExistsAtPath(self.document)
+    path = self.hasPrefix('/') ? self : self.document
+    NSFileManager.defaultManager.fileExistsAtPath(path)
   end
 
   def remove!
     ptr = Pointer.new(:id)
-    NSFileManager.defaultManager.removeItemAtPath(self.document, error:ptr)
+    path = self.hasPrefix('/') ? self : self.document
+    NSFileManager.defaultManager.removeItemAtPath(path, error:ptr)
     ptr[0]
   end
 

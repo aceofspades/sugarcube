@@ -3,6 +3,8 @@ SugarCube
 
 Some sugar for your cocoa, or your [tea][sweettea].
 
+[![Build Status](https://travis-ci.org/rubymotion/sugarcube.png)](https://travis-ci.org/rubymotion/sugarcube)
+
 About
 -----
 
@@ -312,6 +314,15 @@ recurring events)
 (main)> feb_1_2013.end_of_day
 # NOTE! end_of_day is the NEXT DAY.  this is not an accident, it makes comparisons cleaner.  deal with it.
 => 2013-02-02 00:00:00 -0700
+(main)> feb_1_2013.start_of_week  # in the USA, start of week is Sunday
+=> 2013-01-27 00:00:00 -0700
+=> 2013-01-28 00:00:00 -0700  # in most other countries you will get Monday
+(main)> feb_1_2013.start_of_week(:monday)  # or you can specify it!
+=> 2013-01-28 00:00:00 -0700
+(main)> feb_1_2013.end_of_week  # Just like end_of_day, end_of_week returns midnight of the *next day*
+=> 2013-02-03 00:00:00 -0700
+(main)> feb_1_2013.end_of_week(:monday)
+=> 2013-02-04 00:00:00 -0700
 (main)> feb_1_2013.days_in_month
 => 28
 (main)> feb_1_2013.days_in_year
@@ -514,6 +525,7 @@ NSError.new('Error Message', code: 404, userInfo: { warnings: ['blabla'] })
 # file operations
 "my.plist".exists?   # => NSFileManager.defaultManager.fileExistsAtPath("my.plist")
 "my.plist".document  # => NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, true)[0].stringByAppendingPathComponent("my.plist")
+"my.plist".cache  # => NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, true)[0].stringByAppendingPathComponent("my.plist")
 "my.plist".remove!  # => NSFileManager.defaultManager.removeItemAtPath("my.plist".document, error: error)  (returns error, if any occurred)
 
 # get the resource path, useful if you include json files or images you manipulate in the app
@@ -990,13 +1002,13 @@ verbs and SugarCube symbols.
 button = UIButton.alloc.initWithFrame([0, 0, 10, 10])
 
 button.on(:touch) { my_code }
-button.on(:touchupoutside, :touchcancel) { |event|
+button.on(:touch_up_outside, :touch_cancel) { |event|
   puts event.inspect
   # my_code...
 }
 
 # remove handlers
-button.off(:touch, :touchupoutside, :touchcancel)
+button.off(:touch, :touch_up_outside, :touch_cancel)
 button.off(:all)
 ```
 
@@ -1184,6 +1196,16 @@ UIBarButtonItem.imaged(['portrate'.uiimage, 'landscape'.uiimage) {
 UIBarButtonItem.alloc.initWithImage('portrate'.uiimage, landscapeImagePhone:'landscape'.uiimage, style: :bordered.uibarbuttonstyle, target:self, action:"action:")
 ```
 
+Example Usage:
+```ruby
+toolbar = UIToolbar.new
+toolbar.items = [
+  @image_picker_button = UIBarButtonItem.camera { presentImagePickerController(self) },
+  UIBarButtonItem.flexiblespace,
+  @saveButton = UIBarButtonItem.save { save_photo(self) }
+]
+```
+
 NSNotificationCenter
 ----------------------
 
@@ -1208,15 +1230,24 @@ Makes it easy to post a notification to some or all objects.
 ---------
 
 ```ruby
+# once
 1.second.later do
   @view.shake
 end
-
+# repeating
 1.second.every do
   @view.shake
 end
 
-# since that looks funny, an every method is available in the SugarCube::Timer module
+# you can assign the return value (an NSTimer)
+timer = 1.second.every do
+  @view.shake
+end
+# and invalidate it
+timer.invalidate
+
+# the `every` method is available in the SugarCube::Timer module,
+# which you might find more readable
 include SugarCube::Timer
 every 1.minute do
   puts "tick"
@@ -1550,7 +1581,7 @@ You can analyze `UIViewController` hierarchies, too.  There's even a handy
   3: |   `-- #<ScheduleCalendarController:0x131bba90>
   4: +-- #<CameraViewController:0x13191380>
   5: +-- #<UINavigationController:0xac01ea0>
-  6: |   `-- #<UITableController:0xac04e30>
+  6: |   `-- #<UITableViewController:0xac04e30>
   7: +-- #<PicturesViewController:0x1403ede0>
   8: `-- #<MessagesViewController:0x131a1bc0>
 => #<MainScreenController:0xac23b80>

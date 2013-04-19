@@ -2,7 +2,6 @@ class UIViewController
 
   def push(view_controller)
     self.addChildViewController(view_controller)
-    view_controller.didMoveToParentViewController(self)
     self
   end
 
@@ -10,6 +9,13 @@ class UIViewController
   # `push` method.
   def <<(view_controller)
     push view_controller
+  end
+
+  def pop
+    to_pop = self.childViewControllers[-1]
+    if to_pop
+      to_pop.removeFromParentViewController
+    end
   end
 
 end

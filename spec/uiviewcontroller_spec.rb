@@ -1,19 +1,35 @@
 describe 'UIViewController' do
 
+  before do
+    @root_controller = UIViewController.new
+    @second_controller = UIViewController.new
+    @third_controller = UIViewController.new
+  end
+
   it 'should have `push` method' do
-    controller = UIViewController.new
-    controller.push UIViewController.new
-    controller.childViewControllers.length.should == 1
-    controller.push UIViewController.new
-    controller.childViewControllers.length.should == 2
+    @root_controller.push @second_controller
+    @root_controller.childViewControllers.length.should == 1
+    @root_controller.push @third_controller
+    @root_controller.childViewControllers.length.should == 2
   end
 
   it 'should have `<<` method' do
-    controller = UIViewController.new
-    controller << UIViewController.new
-    controller.childViewControllers.length.should == 1
-    controller << UIViewController.new
-    controller.childViewControllers.length.should == 2
+    @root_controller << @second_controller
+    @root_controller.childViewControllers.length.should == 1
+    @root_controller << @third_controller
+    @root_controller.childViewControllers.length.should == 2
+  end
+
+  it 'should have `pop` method' do
+    @root_controller.childViewControllers.length.should == 0
+    @root_controller.push(@second_controller)
+    @root_controller.childViewControllers.length.should == 1
+    popped = @root_controller.pop
+    popped.should == @second_controller
+    @root_controller.childViewControllers.length.should == 0
+    popped = @root_controller.pop
+    popped.should == nil
+    @root_controller.childViewControllers.length.should == 0
   end
 
 end

@@ -226,6 +226,32 @@ class UIView
     self
   end
 
+  def resize_to(size, options={}, &after)
+    if options.is_a? Numeric
+      options = { duration: options }
+    end
+
+    options[:after] = after
+
+    animate(options) {
+      f = self.frame
+      f.size = SugarCube::CoreGraphics::Size(size)
+      self.frame = f
+    }
+  end
+
+  def reframe_to(frame, options={}, &after)
+    if options.is_a? Numeric
+      options = { duration: options }
+    end
+
+    options[:after] = after
+
+    animate(options) {
+      self.frame = frame
+    }
+  end
+
   # Changes the current rotation to `new_angle`
   # (`rotate` rotates relative to the current rotation)
   def rotate_to(options={}, &after)
@@ -351,10 +377,13 @@ class UIView
     end
 
     self.animate(options) {
-       offset = CGPoint.new(0, self.superview.bounds.size.height * 1.5)
-       offset = CGPointApplyAffineTransform(offset, self.transform)
-       self.transform = CGAffineTransformConcat(self.transform, CGAffineTransformMakeRotation(-Math::PI/4))
-       self.center = CGPointMake(self.center.x + offset.x, self.center.y + offset.y)
+      window = UIApplication.sharedApplication.keyWindow || UIApplication.sharedApplication.windows[0]
+      top = self.convertPoint([0, 0], toView:nil).y
+      height = window.frame.size.height - top
+      offset = CGPoint.new(0, height * 1.5)
+      offset = CGPointApplyAffineTransform(offset, self.transform)
+      self.transform = CGAffineTransformConcat(self.transform, CGAffineTransformMakeRotation(-Math::PI/4))
+      self.center = CGPointMake(self.center.x + offset.x, self.center.y + offset.y)
     }
   end
 

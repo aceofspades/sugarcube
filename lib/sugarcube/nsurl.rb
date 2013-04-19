@@ -8,4 +8,12 @@ class NSURL
     UIApplication.sharedApplication.canOpenURL(self)
   end
 
+  def nsdata
+    NSData.dataWithContentsOfURL(self)
+  end
+
+  def nsurlrequest
+    NSURLRequest.requestWithURL(self)
+  end
+
 end
